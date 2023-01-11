@@ -10,19 +10,65 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers;
+  const foundUser = users.find(currentElement => currentElement.username === username);
+  if (!foundUser) {
+    return response.status(404).json({
+      error: 'Mensagem do erro'
+    });
+  }
+  request.user = foundUser;
+  next();
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+  const { user } = request;
+
+
+  if (user.todos.length >= 9 && !user.pro){
+    return response.status(403).json({
+      error: 'Mensagem do erro'
+    });
+  }
+  next();
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers;
+  const { id: todoId } = request.params;
+
+  const foundUser = users.find(currentElement => currentElement.username === username);
+  if (!foundUser) {
+    return response.status(404).json({
+      error: 'Mensagem do erro'
+    });
+  }
+  if(!validate(todoId)){
+    return response.status(400).json({
+      error: 'Mensagem do erro'
+    });
+  }
+  const foundTodo = foundUser.todos.find(currentElement => currentElement.id === todoId);
+  if(!foundTodo){
+    return response.status(404).json({
+      error: 'Mensagem do erro'
+    });
+  }
+  request.todo = foundTodo;
+  request.user = foundUser;
+  next();
 }
 
 function findUserById(request, response, next) {
-  // Complete aqui
+  const { id: userId } = request.params;
+  const foundUser = users.find(currentElement => currentElement.id === userId);
+  if (!foundUser) {
+    return response.status(404).json({
+      error: 'Mensagem do erro'
+    });
+  }
+  request.user = foundUser;
+  next();
 }
 
 app.post('/users', (request, response) => {
